@@ -6,7 +6,7 @@
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>a27791e9-c059-4cc5-9375-a9d9172d1e75</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>SetupProject1</OutputName>
+    <OutputName>Installer</OutputName>
     <OutputType>Package</OutputType>
     <Name>WiX_ITWInstaller</Name>
   </PropertyGroup>
