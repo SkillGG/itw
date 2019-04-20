@@ -43,6 +43,9 @@
   <ItemGroup>
     <Compile Include="Debug.cs" />
     <Compile Include="ITW.cs" />
+    <Compile Include="InputStates.cs" />
+    <Compile Include="Exts\Lines.cs" />
+    <Compile Include="StringDrawn.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
