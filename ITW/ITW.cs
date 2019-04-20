@@ -12,6 +12,10 @@ namespace ITW {
 
 		InputStates inputs;
 
+		// FONTS
+		SpriteFont FiraFont;
+		// FONTS
+
 		// SCREEN
 		private const int DEFRES = 800;
 		private int[] useRes = new int[2] { DEFRES, DEFRES / 12 * 9 };
@@ -65,6 +69,8 @@ namespace ITW {
 
 		}
 
+		StringDrawn sd;
+
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
 		/// This is where it can query for any required services and load any non-graphic
@@ -75,6 +81,17 @@ namespace ITW {
 			// TODO: Add your initialization logic here
 
 			inputs = new InputStates( );
+
+			sd = new StringDrawn(
+				s:"thisisaVERYlongstringtoshow",
+				dt: new StringDrawn.DrawType(new Point[] {
+					new Point(0, 50),
+					new Point(7, 1000),
+					new Point(12, 50)
+				}),
+				c: Color.Red
+			);
+			sd.End(() => { new Debug("sd#End", "Done", Debug.Importance.IMPORTANT_INFO); });
 
 			base.Initialize( );
 		}
@@ -88,6 +105,9 @@ namespace ITW {
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// TODO: use this.Content to load your game content here
+
+			FiraFont = Content.Load<SpriteFont>("fonts/Fira24");
+
 		}
 
 		/// <summary>
@@ -120,6 +140,14 @@ namespace ITW {
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
+			spriteBatch.Begin( );
+
+			if( !sd.first )
+				sd.Show( );
+			if(FiraFont != null)
+				sd.Draw(this.spriteBatch, FiraFont);
+
+			spriteBatch.End( );
 
 			base.Draw(gameTime);
 		}
