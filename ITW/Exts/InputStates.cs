@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace ITW {
+namespace ITW.Exts {
 
 	public enum MouseButton {
 		RIGHT,

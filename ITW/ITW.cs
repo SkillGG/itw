@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using ITW.Exts;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -69,8 +70,6 @@ namespace ITW {
 
 		}
 
-		StringDrawn sd;
-
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
 		/// This is where it can query for any required services and load any non-graphic
@@ -81,17 +80,6 @@ namespace ITW {
 			// TODO: Add your initialization logic here
 
 			inputs = new InputStates( );
-
-			sd = new StringDrawn(
-				s:"thisisaVERYlongstringtoshow",
-				dt: new StringDrawn.DrawType(new Point[] {
-					new Point(0, 50),
-					new Point(7, 1000),
-					new Point(12, 50)
-				}),
-				c: Color.Red
-			);
-			sd.End(() => { new Debug("sd#End", "Done", Debug.Importance.IMPORTANT_INFO); });
 
 			base.Initialize( );
 		}
@@ -141,11 +129,6 @@ namespace ITW {
 
 			// TODO: Add your drawing code here
 			spriteBatch.Begin( );
-
-			if(FiraFont != null){
-				sd.Show( );
-				sd.Draw(this.spriteBatch, FiraFont);
-			}
 
 			spriteBatch.End( );
 

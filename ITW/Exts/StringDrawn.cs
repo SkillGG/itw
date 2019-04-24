@@ -4,7 +4,7 @@ using System.Threading;
 using System;
 using System.Linq;
 
-namespace ITW {
+namespace ITW.Exts {
 
 	/// <summary>
 	/// It's cass that provides XNA support for working with typed strings one letter at the time.
