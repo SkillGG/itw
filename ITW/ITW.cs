@@ -142,10 +142,10 @@ namespace ITW {
 			// TODO: Add your drawing code here
 			spriteBatch.Begin( );
 
-			if( !sd.first )
+			if(FiraFont != null){
 				sd.Show( );
-			if(FiraFont != null)
 				sd.Draw(this.spriteBatch, FiraFont);
+			}
 
 			spriteBatch.End( );
 

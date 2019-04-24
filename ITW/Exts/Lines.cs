@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 
 namespace ITW.Exts {
-	public class Line1D {
+	public struct Line1D {
 
 		public int X;
 		public int Y;
@@ -11,20 +11,20 @@ namespace ITW.Exts {
 		public int Length { get => L; set => L = value; }
 
 		public Line1D(int x, int y, int l){
-			this.X = x;
-			this.Y = y;
-			this.Length = l;
+			X = x;
+			Y = y;
+			L = l;
 		}
 
 		public Line1D(Point p, int l){
-			this.X = p.X;
-			this.Y = p.Y;
-			this.Length = l;
+			X = p.X;
+			Y = p.Y;
+			L = l;
 		}
 
 	}
 
-	public class Line2D {
+	public struct Line2D {
 		public Point Start;
 		public Point End;
 
