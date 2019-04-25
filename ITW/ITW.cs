@@ -1,4 +1,5 @@
 ﻿using ITW.Exts;
+using ITW.Gameplay;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -67,6 +68,13 @@ namespace ITW {
 			this.IsFixedTimeStep = true;
 			this.graphics.SynchronizeWithVerticalRetrace = true;
 			this.TargetElapsedTime = new System.TimeSpan(0, 0, 0, 0, 33); // ~30.3FPS
+
+			Language z = new Language(0, "EN");
+			new Debug("",z.FromString(@"	EN.yes:""no""<12>=[
+	ident.id:""12""=""value"";
+	ident.id:""12""=""value"";
+	ident.id:""12""=""value"";
+];"),Debug.Importance.IMPORTANT_INFO);
 
 		}
 

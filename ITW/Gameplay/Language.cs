@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System;
+using System.Linq;
 
 namespace ITW.Gameplay {
 
@@ -29,23 +31,54 @@ namespace ITW.Gameplay {
 		public int ID { get => id; }
 		public string NAME { get => name; }
 
-		public void FromString(string s){
+		public int FromString(string s) {
 
 			/*
-			.txt:
-			Yes["EN","PL",2]:[Yes][Tak][Ja];
-			Only_this["PL","EN"]:[Tylko to][Only this];
+			**
+			<langIdent>[:<options>]<<langID>>=[
+				<ident>[:<options>]=<value>;
+			];
+			<langIdent>: capital code of language
+			<options>: <option>*
+			<option>: <ident>=<value>
+			<ident>: name of variable that is [a-zA-Z_][a-zA-Z0-9_+-?!@#$%^&*()]
+			<value>: value of variable enclosed into '', `` or "".
+					 enclosing characters should be escaped using preceding $.
+					 $<<ident>> signifies use of external variable. To escape $ sign use $$ or $<$>
+			**
+			PL:name='$$'<1>=[
+				PL="Polski"
+				Yes="Tak";
+				Why?="Dlaczego?";
+			];
+			DE<2>=[Yes="Ja";Why?="Warum?"];
 			*/
-			
-			MatchCollection matches = // $1 - name, $2 - languages, $3 - strings
-			new Regex(@"(?:([a-zA-Z][a-zA-Z0-9]*)\[((?:(?:(?:[A-Z]+)|(?:[0-9]+))[,]?)*)\]:((?:\[[^\]]+\])+))+")
-			.Matches(s);
-			foreach( Match m in matches ){
-				string name = m.Groups[0].Value;
-				string[] languages = m.Groups[1].Value.Split(',');
-				string[] values = m.Groups[2].Value.Split(',');
+
+			// ("|'|`)((?:\\\1|(?!\1).)*)(\1) - value (pcre)
+			// \.(?:([A-Za-z]+):(?:("|'|`)((?:\2|(?!\2).)*)(?:\2))) - option (pcre)
+
+			// ((?<enc>"|'|`)((?:\\\k<enc>|(?!\k<enc>).)*)(?:\k<enc>)) - value (.net)
+			// \.(?:([A-Za-z]+):(?:(?<enc>"|'|`)((?:\k<enc>|(?!\k<enc>).)*)(?:\k<enc>))) - option (.net)
+
+			// [A-Z]+ - langIdent
+			// [0-9]+ - langID
+			// [a-zA-Z_][a-zA-Z0-9]+ - ident
+
+
+			// FULL
+			// ([A-Z]+(?:\.(?:(?:[A-Za-z]+):(?:(?<e1>"|'|`)(?:(?:\\\k<e1>|(?!\k<e1>).)*)(?:\k<e1>))))+\<[0-9]+\>)=\[\s*((?:[a-zA-Z_][a-zA-Z0-9]+(?:\.(?:(?:[A-Za-z]+):(?:(?<e2>"|'|`)(?:(?:\\\k<e2>|(?!\k<e2>).)*)(?:\k<e2>))))+=(?:(?<e3>"|'|`)(?:(?:\\\k<e3>|(?!\k<e3>).)*)(?:\k<e3>));\s*)+)\];
+
+
+			string pattern = @"\s*(?<bp>[A-Z]+(?:\.(?:(?:[A-Za-z]+):(?:(?<e1>""|'|`)(?:(?:\\\k<e1>|(?!\k<e1>).)*)(?:\k<e1>))))+\<[0-9]+\>)=\[\s*(?<ap>(?:[a-zA-Z_][a-zA-Z0-9]+(?:\.(?:(?:[A-Za-z]+):(?:(?<e2>""|'|`)(?:(?:\\\k<e2>|(?!\k<e2>).)*)(?:\k<e2>))))+=(?:(?<e3>""|'|`)(?:(?:\\\k<e3>|(?!\k<e3>).)*)(?:\k<e3>));\s*)+)\];\s*";
+
+			int r = 0;
+
+			foreach(Match m in Regex.Matches(s, pattern)){
+				string befg = m.Groups["bp"].Value;
+				string aftg = m.Groups["ap"].Value;
 			}
 
+			return r;
 		}
 
 		public Language(int ID, string NAME) {
