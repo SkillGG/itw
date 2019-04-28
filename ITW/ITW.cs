@@ -69,11 +69,11 @@ namespace ITW {
 			this.graphics.SynchronizeWithVerticalRetrace = true;
 			this.TargetElapsedTime = new System.TimeSpan(0, 0, 0, 0, 33); // ~30.3FPS
 
-			Language z = new Language(0, "EN");
-			new Debug("",z.FromString(@"	EN.yes:""no""<12>=[
-	ident.id:""12""=""value"";
-	ident.id:""12""=""value"";
-	ident.id:""12""=""value"";
+			LanguageHandler z = new LanguageHandler();
+			new Debug("",z.AddFromString(@"	EN.yes:'no'<0>=[
+	ident.id:`12`=`value`;
+	ident.id:`12`=`value`;
+	ident.id:`12`=`value`;
 ];"),Debug.Importance.IMPORTANT_INFO);
 
 		}

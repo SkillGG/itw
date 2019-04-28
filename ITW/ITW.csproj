@@ -44,6 +44,7 @@
     <Compile Include="Debug.cs" />
     <Compile Include="Exts\Math\Math.cs" />
     <Compile Include="Exts\StringRectangle.cs" />
+    <Compile Include="Gameplay\GameVars.cs" />
     <Compile Include="Gameplay\Language.cs" />
     <Compile Include="Gameplay\MainMenu.cs" />
     <Compile Include="Gameplay\MainMenu\LanguageScreen.cs" />
