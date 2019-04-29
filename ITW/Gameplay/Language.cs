@@ -7,30 +7,47 @@ namespace ITW.Gameplay {
 
 	public class Language {
 
-		public struct LangOpt{
+		public struct LangOpt {
 
 			public string NAME { get; private set; }
 			public string VALUE { get; private set; }
 
-			public LangOpt(string n, string v){
+			public LangOpt(string n, string v) {
 				NAME = n;
 				VALUE = v;
 			}
 
-			public void Change(string v){
+			public void Change(string v) {
 				VALUE = v;
 			}
 
 		}
 
-		private int id;
-		private string name;
+		private readonly int id;
+		private readonly string name;
 		private List<Sentence> strings;
 
 		private List<LangOpt> options;
 
-		public Sentence GetSentence(string n){
-			return strings.Where(e => e.name == n).First( );
+		public bool IsOption(string n) => !( this[n, true].NAME == null );
+		public bool IsSentence(string n) => !( this[n].name == null );
+
+		public LangOpt this[string n, bool f] {
+			get => options.Find(e => e.NAME == n);
+			set {
+				if( IsOption(n) )
+					this[n, true].Change(value.VALUE);
+				options.Add(new LangOpt(n, value.VALUE));
+			}
+		}
+
+		public Sentence this[string n] {
+			get => strings.Find(e => e.name == n);
+			set {
+				if( IsSentence(n) )
+					return;
+				strings.Add(new Sentence(n, value.Plain( ), this));
+			}
 		}
 
 		public int ID { get => id; }
@@ -43,35 +60,20 @@ namespace ITW.Gameplay {
 			options = new List<LangOpt>( );
 		}
 
-		public LangOpt GetOption(string n){
-			LangOpt o = new LangOpt("null","null");
-			foreach(LangOpt l in options){
-				if(l.NAME == n && o.NAME == "null"){
-					o = l;
-				}
-			}
-			return o;
-		}
-
-		public void SetOption(string name, string value){
-			if(GetOption(name).NAME == "null"){
-				options.Add(new LangOpt(name, value));
-			}else{
-				options.Where((e) => e.NAME == name).First( ).Change(value);
-			}
-			RefreshOptions( );
-		}
-
-		private void RefreshOptions(){
-			options = options.GroupBy(e => e.NAME).Select(g=>g.First()).ToList();
+		private void RefreshOptions() {
+			options = options.GroupBy(e => e.NAME).Select(g => g.First( )).ToList( );
 		}
 
 	}
 
 	public struct Sentence {
 
+		private Language l;
+
 		public string name;
-		private string value;
+		private readonly string value;
+
+		public string Plain() => value;
 
 		public List<SentenceOption> options;
 
@@ -90,38 +92,46 @@ namespace ITW.Gameplay {
 		}
 
 		public string GetValue(GameVars gv) {
-			return "";
+			string r = value;
+			if( gv == null )
+				gv = new GameVars( );
+			r = Regex.Replace(r, @".(?<=\$)\$", "$<$>");
+			r = Regex.Replace(r, @".(?<=\$)(?<s>""|'|`)", "${s}");
+			foreach( Match m in Regex.Matches(r, @"(?<whole>\$<(?<var>.*?)>)") ) {
+				string vr = "";
+				if(m.Groups["var"].Value == "$"){
+					r = r.Substring(0, m.Index) + "$" + r.Substring(m.Index + 4);
+					continue;
+				}
+				if( m.Groups["var"].Value.ElementAt(0) == '.' ) {
+					vr = l[m.Groups["var"].Value.Substring(1)].GetValue(gv) ?? "undefined";
+				} else {
+					vr = gv[m.Groups["var"].Value] ?? "undefined";
+				}
+				if(vr != "")
+					r = Regex.Replace(r, "\\" + m.Groups["whole"].Value, vr);
+			}
+			return r;
 		}
 
-		public Sentence(string name, string value){
+		public Sentence(string name, string value, Language l) {
 			this.name = name;
 			this.value = value;
+			this.l = l;
 			this.options = new List<SentenceOption>( );
 		}
 
-		public SentenceOption GetOption(string n) {
-			SentenceOption o = new SentenceOption("null", "null");
-			foreach( SentenceOption l in options ) {
-				if( l.NAME == n && o.NAME == "null" ) {
-					o = l;
-				}
+		public SentenceOption this[string n] {
+			get => options.Find(e => e.NAME == n);
+			set {
+				if( this[n].NAME != null )
+					this[n].Change(value.VALUE);
+				else
+					options.Add(value);
+				OptionsSave( );
 			}
-			return o;
 		}
-
-		public void SetOption(string name, string value) {
-			if( GetOption(name).NAME == "null" ) {
-				options.Add(new SentenceOption(name, value));
-			} else {
-				options.Where((e) => e.NAME == name).First( ).Change(value);
-			}
-			RefreshOptions( );
-		}
-
-		private void RefreshOptions() {
-			options = options.GroupBy(e => e.NAME).Select(g => g.First( )).ToList( );
-		}
-
+		private void OptionsSave() => options.RemoveAll(e => e.NAME == null);
 	}
 
 	public class LanguageHandler {
@@ -133,19 +143,11 @@ namespace ITW.Gameplay {
 		}
 
 		public Language GetLanguage(int id) {
-			Language r = null;
-			for( int i = 0; i < languages.Count; i++ )
-				if( languages[i].ID == id )
-					r = languages[i];
-			return r;
+			return languages.Find(e => e.ID == id);
 		}
 
 		public Language GetLanguage(string name) {
-			Language r = null;
-			for( int i = 0; i < languages.Count; i++ )
-				if( languages[i].NAME == name )
-					r = languages[i];
-			return r;
+			return languages.Find(e => e.NAME == name);
 		}
 
 		public int AddFromString(string s) {
@@ -221,7 +223,7 @@ namespace ITW.Gameplay {
 
 			// If matches means there is semicolon missed.
 			string mainPattern_MISSC_Err =
-			@".(?:(?< !;|\[).)*(?<==)(?<e1>""|'|`)(?:\$\k<e1>|(?!\k<e1>).)*\k<e1>(?!;)";
+			@"(?:(?!;|\[).)*(?<==)(?<e1>""|'|`)(?:\$\k<e1>|(?!\k<e1>).)*\k<e1>(?!;)";
 
 			/*
 				befPattern:
@@ -240,7 +242,7 @@ namespace ITW.Gameplay {
 			 .<ident>:<value>
 			*/
 			string optionPattern = @"\.(?<ident>[A-Za-z][a-zA-Z0-9]*)[ \t]*:[ \t]*(?<e1>""|'|`)(?<value>(?:\$\k<e1>|(?!\k<e1>).)*)(?:\k<e1>)";
-			
+
 
 			int errno = 0;
 
@@ -303,25 +305,25 @@ namespace ITW.Gameplay {
 
 				Language newLang = new Language(int.Parse(langID), langIdent);
 
-				foreach(Match lo in Regex.Matches(options, optionPattern)){
-					newLang.SetOption(lo.Groups["ident"].Value, lo.Groups["value"].Value);
+				foreach( Match lo in Regex.Matches(options, optionPattern) ) {
+					newLang[lo.Groups["ident"].Value, true] = new Language.LangOpt(null, lo.Groups["value"].Value);
 				}
 
-				foreach(Match var in Regex.Matches(aftg, aftPattern)){
+				foreach( Match var in Regex.Matches(aftg, aftPattern) ) {
 					string ident = var.Groups["ident"].Value;
 					string opts = var.Groups["options"].Value;
 					string value = var.Groups["value"].Value;
 
-					Sentence s = new Sentence(ident, value);
+					Sentence newSentece = new Sentence(ident, value, newLang);
 
-					foreach(Match vo in Regex.Matches(opts, optionPattern)){
-
-						s.SetOption(vo.Groups["ident"].Value, vo.Groups["value"].Value);
-
+					foreach( Match vo in Regex.Matches(opts, optionPattern) ) {
+						newSentece[vo.Groups["ident"].Value] = new Sentence.SentenceOption(null, vo.Groups["value"].Value);
 					}
 
-				}
+					newLang[newSentece.name] = newSentece;
 
+				}
+				languages.Add(newLang);
 			}
 
 			return errno;

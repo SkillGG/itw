@@ -68,14 +68,12 @@ namespace ITW {
 			this.IsFixedTimeStep = true;
 			this.graphics.SynchronizeWithVerticalRetrace = true;
 			this.TargetElapsedTime = new System.TimeSpan(0, 0, 0, 0, 33); // ~30.3FPS
-
 			LanguageHandler z = new LanguageHandler();
 			new Debug("",z.AddFromString(@"	EN.yes:'no'<0>=[
-	ident.id:`12`=`value`;
-	ident.id:`12`=`value`;
-	ident.id:`12`=`value`;
+	ident=`nazwa gracza: $$namae`;
+	kite=`Spadochron $`hi$`$<$>`;
 ];"),Debug.Importance.IMPORTANT_INFO);
-
+			new Debug("",z.GetLanguage(0)?["kite"].GetValue(null), Debug.Importance.ERROR);
 		}
 
 		/// <summary>
