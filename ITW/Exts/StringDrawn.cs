@@ -52,11 +52,11 @@ namespace ITW.Exts {
 			}
 
 			/// <summary>
-			/// Type of draw:
-			/// 0 - all at once
-			/// 1 - every character each 'pace' ms
+			/// Type of draw:<para></para>
+			/// 0 - all at once<para></para>
+			/// 1 - every character each 'pace' ms<para></para>
 			/// 2 - Point array where X indicates index where to start section (first X in array **IS** always 0) and Y indicates pace
-			/// </summary>
+			/// <para></para></summary>
 			private readonly byte type;
 
 			/// <summary>

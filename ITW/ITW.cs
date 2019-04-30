@@ -14,6 +14,9 @@ namespace ITW {
 
 		InputStates inputs;
 
+		public GameVars Variables { get; private set; }
+		public LanguageHandler Languages { get; private set; }
+
 		// FONTS
 		SpriteFont FiraFont;
 		// FONTS
@@ -48,7 +51,6 @@ namespace ITW {
 		}
 		// SCREEN
 
-
 		public ITW() {
 			Debug.MinImp = Debug.Importance.IMPORTANT_INFO;
 			graphics = new GraphicsDeviceManager(this);
@@ -68,12 +70,10 @@ namespace ITW {
 			this.IsFixedTimeStep = true;
 			this.graphics.SynchronizeWithVerticalRetrace = true;
 			this.TargetElapsedTime = new System.TimeSpan(0, 0, 0, 0, 33); // ~30.3FPS
-			LanguageHandler z = new LanguageHandler();
-			new Debug("",z.AddFromString(@"	EN.yes:'no'<0>=[
-	ident=`nazwa gracza: $$namae`;
-	kite=`Spadochron $`hi$`$<$>`;
-];"),Debug.Importance.IMPORTANT_INFO);
-			new Debug("",z.GetLanguage(0)?["kite"].GetValue(null), Debug.Importance.ERROR);
+
+			Languages = new LanguageHandler( );
+			Variables = new GameVars( );
+			Variables["version"] = "beta 0.0.1";
 		}
 
 		/// <summary>
@@ -102,6 +102,8 @@ namespace ITW {
 
 			FiraFont = Content.Load<SpriteFont>("fonts/Fira24");
 
+			// Load EN language
+			Languages.AddFromString(ReadFile.Read("./Langs/EN.lang"));
 		}
 
 		/// <summary>
@@ -133,8 +135,12 @@ namespace ITW {
 		protected override void Draw(GameTime gameTime) {
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
+			string gameVersion = Languages?[0]?["version"].GetValue(Variables);
+
 			// TODO: Add your drawing code here
 			spriteBatch.Begin( );
+
+			spriteBatch.DrawString(FiraFont, gameVersion, new Vector2(FiraFont.MeasureString(gameVersion).X + 10, 10), Color.White);
 
 			spriteBatch.End( );
 
