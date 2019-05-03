@@ -352,20 +352,21 @@ namespace ITW.Gameplay {
 		/// <summary>
 		/// List of all languages
 		/// </summary>
-		List<Language> languages;
+		public List<Language> All { get; private set; }
 
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
 		public LanguageHandler() {
-			languages = new List<Language>( );
+			All = new List<Language>( );
+			CurrentLang = -1;
 		}
 
 		/// <summary>
 		/// int storing value of currently chosen language
 		/// </summary>
-		private int CurrentLang = 0;
+		private int CurrentLang;
 
 		/// <summary>
 		/// Changes <see cref="CurrentLang"/> value to given, if Language with given ID exists.
@@ -391,7 +392,7 @@ namespace ITW.Gameplay {
 		/// <param name="id">ID of searched <see cref="Language"/></param>
 		/// <returns></returns>
 		public Language this[int id] {
-			get => languages.Find(e => e.ID == id);
+			get => All.Find(e => e.ID == id);
 		}
 
 		/// <summary>
@@ -400,7 +401,7 @@ namespace ITW.Gameplay {
 		/// <param name="name">NAME of searched <see cref="Language"/>s (&lt;langIdent>)</param>
 		/// <returns></returns>
 		public List<Language> this[string name] {
-			get => languages.FindAll(e => e.NAME == name).ToList( );
+			get => All.FindAll(e => e.NAME == name).ToList( );
 		}
 
 		/// <summary>
@@ -408,10 +409,10 @@ namespace ITW.Gameplay {
 		/// </summary>
 		/// <param name="l"></param>
 		private void AddLanguage(Language l) {
-			if( languages.Find(e => e.ID == l.ID) == null )
-				languages.Add(l);
+			if( All.Find(e => e.ID == l.ID) == null )
+				All.Add(l);
 			else
-				new Debug("LanguageHandler#AddLanguage", $"Language with ID:{l.ID} has already been added! {languages.Find(e => e.ID == l.ID).NAME}", Debug.Importance.ERROR);
+				new Debug("LanguageHandler#AddLanguage", $"Language with ID:{l.ID} has already been added! {All.Find(e => e.ID == l.ID).NAME}", Debug.Importance.ERROR);
 		}
 
 		/// <summary>
@@ -484,6 +485,14 @@ namespace ITW.Gameplay {
 			// If matches means there is semicolon missed.
 			string mainPattern_MISSC_Err =
 			@"(?:(?!;|\[).)*(?<==)(?<e1>""|'|`)(?:\$\k<e1>|(?!\k<e1>).)*\k<e1>(?!;)";
+
+			//TODO: Add those errors:
+			/*
+			 -	ID not number
+			 -	Illegal langIdent
+			 -	Illegal option ident
+			 -	Illegal var ident
+			*/
 
 			/*
 				befPattern:
@@ -585,6 +594,10 @@ namespace ITW.Gameplay {
 					// Add it to newLang
 					newLang[newSentece.name] = newSentece;
 				}
+
+				if( CurrentLang == -1 )         // first lang added
+					CurrentLang = newLang.ID;   // Set it as default
+
 				// Add newLang to Languages
 				AddLanguage(newLang);
 			}

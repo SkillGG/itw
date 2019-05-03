@@ -15,6 +15,8 @@ namespace ITW.Exts {
 		private string visible;
 		private DrawType type;
 
+		public string Text { get => full; set { if( !First ) full = value; } }
+
 		private int walkerPeriod;
 		private Timer walker;
 
@@ -129,11 +131,11 @@ namespace ITW.Exts {
 				if( this.steps == null || this.steps.Length == 0 )
 					throw new NullReferenceException("Points are null! Set at least one!");
 				int r = 0;
-				for( int i = 0; i < this.steps.Length - 1; i++ ) {	// foreach step
-					//if( this.steps[i].X == this.steps[i + 1].X )	// if step duplicate
-						//continue;
-					// if on i+1 or between i and i+
-					if( n == this.steps[i + 1].X || ( n < steps[i + 1].X && n > steps[i].X ) ) 
+				for( int i = 0; i < this.steps.Length - 1; i++ ) {  // foreach step
+																	//if( this.steps[i].X == this.steps[i + 1].X )	// if step duplicate
+																	//continue;
+																	// if on i+1 or between i and i+
+					if( n == this.steps[i + 1].X || ( n < steps[i + 1].X && n > steps[i].X ) )
 						r = i;
 					// if on i
 					else if( n == steps[i].X )
@@ -228,7 +230,7 @@ namespace ITW.Exts {
 		/// <param name="dt">A <code>DrawType</code> (how to type string)</param>
 		/// <param name="c">Color of string</param>
 		public StringDrawn(string s, Vector2? p = null, StringDrawn.DrawType dt = null, Color? c = null) {
-			this.full = s;
+			this.Text = s ?? "undefined";
 			this.MoveTo(p);
 			this.type = dt ?? new DrawType( );
 			this.Recolor(c);
@@ -288,12 +290,23 @@ namespace ITW.Exts {
 		/// <summary>
 		/// Resets string to its starting values.
 		/// <para>Invoking <see cref="Show(int, int)"/> is necesarry for second draw</para>
+		/// Setting parameters will change them after reset
 		/// </summary>
-		public void Reset() {
-			walker.Dispose( );  // stop timer
+		/// <param name="s">Text</param>
+		/// <param name="p">Position</param>
+		/// <param name="dt">DrawType</param>
+		/// <param name="c">Color</param>
+		public void Reset(string s = null, Vector2? p = null, StringDrawn.DrawType dt = null, Color? c = null) {
+			walker?.Dispose( );  // stop timer
 			walker = null;      // delete timer
 			afterWait = 0;      // set EndDelay to 0
 			First = false;      // set 'already-started' flag to 0
+
+			// Reset values
+			this.Text = s ?? this.Text;
+			this.MoveTo(p ?? this.Position);
+			this.type = dt ?? this.type;
+			this.Recolor(c ?? this.Color);
 		}
 
 		/// <summary>

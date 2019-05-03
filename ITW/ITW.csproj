@@ -74,12 +74,12 @@
     <Compile Include="Exts\StringRectangle.cs" />
     <Compile Include="Gameplay\GameVars.cs" />
     <Compile Include="Gameplay\Language.cs" />
-    <Compile Include="Gameplay\MainMenu.cs" />
-    <Compile Include="Gameplay\MainMenu\LanguageScreen.cs" />
+    <Compile Include="Gameplay\MainGame.cs" />
     <Compile Include="Gameplay\SaveState.cs" />
     <Compile Include="ITW.cs" />
     <Compile Include="Exts\InputStates.cs" />
     <Compile Include="Exts\Lines.cs" />
+    <Compile Include="Gameplay\GamePlay.cs" />
     <Compile Include="Gameplay\Movable.cs" />
     <Compile Include="Exts\StringDrawn.cs" />
     <Compile Include="Program.cs" />
@@ -103,6 +103,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="ITW_TemporaryKey.pfx" />
+    <Content Include="Config\Startup.cfg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Version.cfg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
@@ -110,6 +116,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Gameplay\MainMenu\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

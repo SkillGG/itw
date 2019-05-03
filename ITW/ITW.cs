@@ -12,13 +12,19 @@ namespace ITW {
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 
-		InputStates inputs;
+		private InputStates inputs;
 
 		public GameVars Variables { get; private set; }
 		public LanguageHandler Languages { get; private set; }
 
+		public MainGame Main { get; private set; }
+
+		public StringDrawn VersionDraw;
+
 		// FONTS
-		SpriteFont FiraFont;
+		public SpriteFont FiraF24;
+		public SpriteFont FiraF20;
+		public SpriteFont FiraF10;
 		// FONTS
 
 		// SCREEN
@@ -26,10 +32,10 @@ namespace ITW {
 		private int[] useRes = new int[2] { DEFRES, DEFRES / 12 * 9 };
 		private bool fullScreen = false;
 		private bool borderLess = true;
-		public int WIDTH { get { return this.useRes[0]; } private set { this.useRes[0] = value; } }
-		public int HEIGHT { get { return this.useRes[1]; } private set { this.useRes[1] = value; } }
-		public bool FULLSCREEN { get { return this.fullScreen; } private set { this.fullScreen = value; } }
-		public bool BORDERLESS { get { return this.borderLess; } private set { this.borderLess = value; } }
+		public int WIDTH { get => this.useRes[0]; private set { this.useRes[0] = value; } }
+		public int HEIGHT { get => this.useRes[1]; private set { this.useRes[1] = value; } }
+		public bool FULLSCREEN { get => this.fullScreen; private set { this.fullScreen = value; } }
+		public bool BORDERLESS { get => this.borderLess; private set { this.borderLess = value; } }
 
 		public void ChangeGameResolution(int? w, int? h, bool? FS, bool? BL) {
 			string pl = "Multris#ChangeGameResolution";
@@ -73,7 +79,14 @@ namespace ITW {
 
 			Languages = new LanguageHandler( );
 			Variables = new GameVars( );
-			Variables["version"] = "beta 0.0.1";
+
+			// Init all basic variables
+			Variables.LoadFromFile(ReadFile.Read("./Config/Startup.cfg"));
+			Variables.LoadFromFile(ReadFile.Read("./Version.cfg"));
+			if( !string.IsNullOrWhiteSpace(Variables["Player.cfg"]) ) {
+				Variables.LoadFromFile(ReadFile.Read(Variables["Player.cfg"]));
+			}
+			this.Main = new MainGame(new VariablesHandler(this));
 		}
 
 		/// <summary>
@@ -100,10 +113,20 @@ namespace ITW {
 
 			// TODO: use this.Content to load your game content here
 
-			FiraFont = Content.Load<SpriteFont>("fonts/Fira24");
+			FiraF24 = Content.Load<SpriteFont>("fonts/Fira24");
+			FiraF20 = Content.Load<SpriteFont>("fonts/Fira20");
+			FiraF10 = Content.Load<SpriteFont>("fonts/Fira10");
 
 			// Load EN language
 			Languages.AddFromString(ReadFile.Read("./Langs/EN.lang"));
+
+			Vector2 s = FiraF10.MeasureString(Languages.Current?["version"].GetValue(Variables) ?? "undefined");
+
+			VersionDraw = new StringDrawn(
+				s: Languages.Current?["version"].GetValue(Variables),
+				p: new Vector2(WIDTH - s.X, HEIGHT - s.Y),
+				c: Color.Red);
+			VersionDraw.Show( );
 		}
 
 		/// <summary>
@@ -113,6 +136,8 @@ namespace ITW {
 		protected override void UnloadContent() {
 			// TODO: Unload any non ContentManager content here
 		}
+
+		private bool FirstUpdate { get; set; }
 
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
@@ -125,7 +150,21 @@ namespace ITW {
 
 			// TODO: Add your update logic here
 
+			
+			if( this.VersionDraw.Text != ( Languages.Current?["version"].GetValue(Variables) ?? "undefined" ) ) {
+				Vector2 s = FiraF10.MeasureString(Languages.Current?["version"].GetValue(Variables) ?? "undefined");
+				VersionDraw.Reset(
+					s: Languages.Current?["version"].GetValue(Variables),
+					p: new Vector2(WIDTH - s.X, HEIGHT - s.Y)
+				);
+				VersionDraw.Show( );
+			}
+
+			Main.Update(inputs);
+
 			base.Update(gameTime);
+
+			inputs.Update( );
 		}
 
 		/// <summary>
@@ -135,13 +174,10 @@ namespace ITW {
 		protected override void Draw(GameTime gameTime) {
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			string gameVersion = Languages?[0]?["version"].GetValue(Variables);
-
 			// TODO: Add your drawing code here
 			spriteBatch.Begin( );
-
-			spriteBatch.DrawString(FiraFont, gameVersion, new Vector2(FiraFont.MeasureString(gameVersion).X + 10, 10), Color.White);
-
+			Main.Draw(spriteBatch);
+			VersionDraw.Draw(spriteBatch, FiraF10);
 			spriteBatch.End( );
 
 			base.Draw(gameTime);
