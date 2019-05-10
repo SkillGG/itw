@@ -11,6 +11,10 @@ namespace ITW.Gameplay {
 		/// </summary>
 		public LanguageHandler Langs { get => game.Languages; }
 
+		public void RefreshLanguage() => game.RefreshLanguage( );
+
+		public FontHandler Fonts { get => game.Fonts; }
+
 		/// <summary>
 		/// GameVars handle
 		/// </summary>

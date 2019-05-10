@@ -12,22 +12,19 @@ namespace ITW.Exts {
 
 	public class MouseClick {
 
-		private readonly MouseButton btn;
-		private Point pnt;
-
-		public MouseButton Button { get { return this.btn; } }
-		public Point Point { get { return this.pnt; } }
+		public MouseButton Button { get; private set; }
+		public Point Point { get; private set; }
 
 		private MouseClick() { }
 
 		public MouseClick(Point p, MouseButton b) {
-			this.pnt = p;
-			this.btn = b;
+			this.Point = p;
+			this.Button = b;
 		}
 
 		public MouseClick(int x, int y, MouseButton b) {
-			this.pnt = new Point(x, y);
-			this.btn = b;
+			this.Point = new Point(x, y);
+			this.Button = b;
 		}
 
 	}
@@ -173,7 +170,7 @@ namespace ITW.Exts {
 		/// <returns>
 		/// MouseClick object that contains every information about given click.
 		/// </returns>
-		public MouseClick MouseClicked(InputStates b) {
+		public MouseClick MousePressed(InputStates b) {
 			this.Update( );
 			if( b.mouse.LeftButton == ButtonState.Released && this.mouse.LeftButton == ButtonState.Pressed )
 				return new MouseClick(mouse.X, mouse.Y, MouseButton.LEFT);

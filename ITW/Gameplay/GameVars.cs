@@ -27,26 +27,44 @@ namespace ITW.Gameplay {
 			/// </summary>
 			/// <param name="s">name of var</param>
 			/// <param name="value">default value of var</param>
-			public Var(string s, string value):this() {
-				this.Name = s;
-				this.Value = value;
-			}
-
-			/// <summary>
-			/// Setter for value;
-			/// </summary>
-			/// <param name="v"></param>
-			public void Change(string v) {
-				new Debug("b", $@"Changing value from ""{Value}"" to ""{v}""", Debug.Importance.ERROR);
-				this.Value = v;
-				new Debug("b", $@"Result: ""{Value}""", Debug.Importance.ERROR);
+			public Var(string s, string value) {
+				Name = s;
+				Value = value;
 			}
 		}
 
 		/// <summary>
 		/// Array of variables
 		/// </summary>
-		List<Var> vars;
+		private List<Var> vars;
+
+		/// <summary>
+		/// Array of names of variables that are being debugged
+		/// </summary>
+		private List<string> debugged;
+
+		/// <summary>
+		/// Returns currently debugged values.
+		/// </summary>
+		/// <returns></returns>
+		public string Debugged() {
+			string s = "";
+			foreach(string x in debugged){
+				s += $@"{x}=""{this[x] ?? "null"}"";";
+			}
+			return s;
+		}
+
+		/// <summary>
+		/// Toggles debug on given value
+		/// </summary>
+		/// <param name="td"></param>
+		public void ToggleDebug(string td) {
+			if( debugged.Contains(td) )
+				debugged.Remove(td);
+			else if( IsVar(td) )
+				debugged.Add(td);
+		}
 
 		/// <summary>
 		/// Getter and setter for variables
@@ -56,17 +74,20 @@ namespace ITW.Gameplay {
 		public string this[string s] {
 			get => vars.Find(e => e.Name == s).Value;
 			set {
-				new Debug("a", $@"Attempt to change value of ""{s}"" to ""{value}"".", Debug.Importance.ERROR);
 				if( vars.Find(e => e.Name == s).Name != null )
-					vars.Find(e => e.Name == s).Change(value);
+					vars[vars.FindIndex(e => e.Name == s)] = new Var(s, value);
 				else
 					vars.Add(new Var(s, value));
-
-				if( this[s] != value )
-					throw new System.Exception("Mot changed!");
-				new Debug("a", $@"Result: ""{this[s]}""", Debug.Importance.ERROR);
 			}
 		}
+
+		/// <summary>
+		/// Checks if Var with given name is set up
+		/// </summary>
+		/// <param name="name">Name of Variable to check</param>
+		/// <returns></returns>
+		public bool IsVar(string name) => vars.Find(e => e.Name == name).Name != null;
+
 
 		/// <summary>
 		/// Constructor for GameVars
@@ -76,6 +97,7 @@ namespace ITW.Gameplay {
 				new Var("endl", "\n\r"),
 				new Var("$", "\\$")
 			};
+			debugged = new List<string> { };
 		}
 
 		public void LoadFromFile(string str) {
@@ -92,13 +114,8 @@ namespace ITW.Gameplay {
 					new Debug("GameVars#LoadFromFile(string)", $@"Variable identificator is illegal! {m.Groups["ident"]}", Debug.Importance.ERROR);
 					return;
 				}
-				new Debug("LoadFromFile", $@"Changed ""{ident}""({this[ident] ?? "null"}, {this.vars.Find(e=>e.Name==ident).Name??"null"}) to: ""{value}"".", Debug.Importance.IMPORTANT_INFO);
+
 				this[ident] = value;
-
-				new Debug("", $"When do i Fire? {this[ident]}", Debug.Importance.ERROR);
-
-				if( this[ident] != value )
-					throw new System.Exception("Could not change value!");
 
 			}
 		}

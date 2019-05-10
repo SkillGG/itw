@@ -206,6 +206,20 @@ namespace ITW.Exts {
 		public Vector2 Position { get; private set; }
 
 		/// <summary>
+		/// last font this string was drawn with
+		/// </summary>
+		public SpriteFont lastFont;
+
+		/// <summary>
+		/// Border of entire string as it HAS BEEN drawn previously
+		/// </summary>
+		public Rectangle? Border => lastFont == null ? null :
+		new Rectangle?(new Rectangle(
+			(int) Position.X, (int) Position.Y,
+			(int) lastFont.MeasureString(this.full).X, (int) lastFont.MeasureString(this.full).Y
+		));
+
+		/// <summary>
 		/// Moves <see cref="string"/> to <paramref name="p"/> position
 		/// </summary>
 		/// <param name="p">New position, if null nothing moves</param>
@@ -281,8 +295,16 @@ namespace ITW.Exts {
 			else                        // If we show all at once
 				this.walker = new Timer((object x) => { // after bef:
 														// If shown all: stop, delete timer and invoke endFunc
-					if( visible == full ) { walker.Dispose( ); walker = null; endFunc?.Invoke( ); return; }
+					if( visible == full ) {
+						if( walker != null ) { endFunc?.Invoke( ); return; }
+						walker.Dispose( );
+						walker = null;
+						endFunc?.Invoke( );
+						return;
+					}
 					visible = full;             // show all
+					if( walker == null )
+						return;
 					walker.Change(aft, 1);      // EndDelay 
 				}, null, bef, 1);
 		}
@@ -316,6 +338,8 @@ namespace ITW.Exts {
 		/// <param name="sb"><see cref="SpriteBatch"/> to draw to</param>
 		/// <param name="font"><see cref="SpriteFont"/> to draw with</param>
 		public void Draw(SpriteBatch sb, SpriteFont font) {
+			if( font != lastFont )	// if font has changed / first time drawing
+				lastFont = font;	// set current font to new one
 			if( First ) // if shown at least once
 				sb.DrawString(font, visible ?? " ", Position, this.Color);  // draw
 		}

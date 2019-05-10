@@ -25,7 +25,6 @@ namespace ITW.Gameplay {
 			/// </summary>
 			public string VALUE { get; private set; }
 
-
 			/// <summary>
 			/// Constructor for the LangOpt
 			/// </summary>
@@ -35,26 +34,6 @@ namespace ITW.Gameplay {
 				NAME = n;       // set name to given
 				VALUE = null;   // set default for value
 				Change(v);      // change value to given
-			}
-
-			/// <summary>
-			/// Checks if options has been initialized properely
-			/// </summary>
-			/// <returns></returns>
-			public bool IsInitialized() {
-				if( String.IsNullOrWhiteSpace(VALUE) || String.IsNullOrWhiteSpace(NAME) )
-					return false;
-				return true;
-			}
-
-			/// <summary>
-			/// Checks if option has been initialized just for <see cref="Language.this[string, int]"/> = new <see cref="LangOpt"/>(null, "value");
-			/// </summary>
-			/// <returns></returns>
-			public bool IsFastInitialized() {
-				if( !String.IsNullOrWhiteSpace(VALUE) && String.IsNullOrWhiteSpace(NAME) )
-					return true;
-				return false;
 			}
 
 			/// <summary>
@@ -91,13 +70,13 @@ namespace ITW.Gameplay {
 		/// </summary>
 		/// <param name="n">name of option</param>
 		/// <returns></returns>
-		public bool IsOption(string n) => !( this[n, true].NAME == null );
+		public bool IsOption(string n) => this[n, true].NAME != null;
 		/// <summary>
 		/// Check if sentence is present in this language.
 		/// </summary>
 		/// <param name="n">name of option</param>
 		/// <returns></returns>
-		public bool IsSentence(string n) => !( this[n].Plain( ) == null );
+		public bool IsSentence(string n) => this[n].Plain( ) != null;
 
 		/// <summary>
 		/// Getter and setter for Language's options. To distinquish from <see cref="this[string]"/> you need to use second argument.
@@ -114,7 +93,7 @@ namespace ITW.Gameplay {
 			get => options.Find(e => e.NAME == n); // get option where NAME equals n
 			set {
 				if( IsOption(n) )                           // If option already initialized
-					this[n, true].Change(value.VALUE);      // Change its value
+					options[options.FindIndex(e => e.NAME == n)] = new LangOpt(n, value.VALUE);
 				else
 					options.Add(new LangOpt(n, value.VALUE));   // else add new one
 			}
@@ -132,12 +111,13 @@ namespace ITW.Gameplay {
 		/// <seealso cref="this[string, bool]"/>
 		/// <returns></returns>
 		public LangOpt this[string n, int f] {
-			get => this[n, true];           // get from this[string, bool]
-			set => this[n, true] = value;   // set from this[string, bool]
+			get => this[n, true];
+			set => this[n, true] = value;
 		}
 
 		/// <summary>
-		/// Getter and Setter for Language's Sentences
+		/// Getter and Setter for Language's Sentences<para></para>
+		/// If there is no such Sentence, returned one has specified name, but null value
 		/// </summary>
 		/// <param name="n">name of an Sentence to set/get</param>
 		/// <returns></returns>
@@ -275,8 +255,8 @@ namespace ITW.Gameplay {
 		public string GetValue(GameVars gv) {
 			string place = "Sentence#GetValue(GameVars)";   // set place for errors
 			if( String.IsNullOrWhiteSpace(value) ) {    // check if Sentence is assigned
-				new Debug(place, $"You try to read from unassigned Sentence '{name}'! Returned `undefined`!", Debug.Importance.ERROR);
-				return "undefined";
+				new Debug(place, $"You try to read from unassigned Sentence '{name}'! Returned null!", Debug.Importance.ERROR);
+				return null;
 			}
 			// reassign variable to not change the original
 			string r = value;
@@ -306,7 +286,7 @@ namespace ITW.Gameplay {
 				}
 			}
 			// return escaped string
-			return r;
+			return r ?? null;
 		}
 
 		/// <summary>
@@ -331,7 +311,7 @@ namespace ITW.Gameplay {
 			get => options.Find(e => e.NAME == n); // Returns first occurence 
 			set {
 				if( this[n].NAME != null )          // if option exists
-					this[n].Change(value.VALUE);    // change its value
+					options[options.FindIndex(e => e.NAME == n)] = new SentenceOption(n, value.VALUE);  // change its value
 				else
 					options.Add(value);             // add new option
 				RemoveNullOptions( );                       // remove null options
@@ -574,7 +554,7 @@ namespace ITW.Gameplay {
 
 				// Set all its options.
 				foreach( Match lo in Regex.Matches(options, optionPattern) ) {
-					newLang[lo.Groups["ident"].Value, 0] = new Language.LangOpt(null, lo.Groups["value"].Value);
+					newLang[lo.Groups["ident"].Value, 0] = new Language.LangOpt(lo.Groups["ident"].Value, lo.Groups["value"].Value);
 				}
 
 				// Match every sentence from language 'body'

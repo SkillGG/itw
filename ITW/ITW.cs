@@ -20,16 +20,15 @@ namespace ITW {
 		public MainGame Main { get; private set; }
 
 		public StringDrawn VersionDraw;
+		public StringDrawn DebugDraw;
 
 		// FONTS
-		public SpriteFont FiraF24;
-		public SpriteFont FiraF20;
-		public SpriteFont FiraF10;
+		public FontHandler Fonts { get; private set; }
 		// FONTS
 
 		// SCREEN
 		private const int DEFRES = 800;
-		private int[] useRes = new int[2] { DEFRES, DEFRES / 12 * 9 };
+		private readonly int[] useRes = new int[2] { DEFRES, DEFRES / 12 * 9 };
 		private bool fullScreen = false;
 		private bool borderLess = true;
 		public int WIDTH { get => this.useRes[0]; private set { this.useRes[0] = value; } }
@@ -77,6 +76,10 @@ namespace ITW {
 			this.graphics.SynchronizeWithVerticalRetrace = true;
 			this.TargetElapsedTime = new System.TimeSpan(0, 0, 0, 0, 33); // ~30.3FPS
 
+			FirstUpdate = false;
+
+			Fonts = new FontHandler( );
+
 			Languages = new LanguageHandler( );
 			Variables = new GameVars( );
 
@@ -113,20 +116,28 @@ namespace ITW {
 
 			// TODO: use this.Content to load your game content here
 
-			FiraF24 = Content.Load<SpriteFont>("fonts/Fira24");
-			FiraF20 = Content.Load<SpriteFont>("fonts/Fira20");
-			FiraF10 = Content.Load<SpriteFont>("fonts/Fira10");
+			Fonts["Fira24"] = new FontHandler.Font(Content.Load<SpriteFont>("fonts/Fira24"), null);
+			Fonts["Fira20"] = new FontHandler.Font(Content.Load<SpriteFont>("fonts/Fira20"), null);
+			Fonts["Fira10"] = new FontHandler.Font(Content.Load<SpriteFont>("fonts/Fira10"), null);
 
 			// Load EN language
 			Languages.AddFromString(ReadFile.Read("./Langs/EN.lang"));
+			Languages.AddFromString(ReadFile.Read("./Langs/PL.lang"));
 
-			Vector2 s = FiraF10.MeasureString(Languages.Current?["version"].GetValue(Variables) ?? "undefined");
+			Vector2 s = Fonts["Fira10"].FONT.MeasureString(Languages.Current?["version"].GetValue(Variables) ?? "undefined");
 
 			VersionDraw = new StringDrawn(
 				s: Languages.Current?["version"].GetValue(Variables),
 				p: new Vector2(WIDTH - s.X, HEIGHT - s.Y),
-				c: Color.Red);
+				c: Color.Red
+			);
 			VersionDraw.Show( );
+			DebugDraw = new StringDrawn(
+				s: Variables.Debugged( ),
+				p: new Vector2(5),
+				c: Color.Orange
+			);
+			DebugDraw.Show( );
 		}
 
 		/// <summary>
@@ -150,9 +161,13 @@ namespace ITW {
 
 			// TODO: Add your update logic here
 
-			
+			if( !FirstUpdate ) {
+				Main.Start( );
+				FirstUpdate = true;
+			}
+
 			if( this.VersionDraw.Text != ( Languages.Current?["version"].GetValue(Variables) ?? "undefined" ) ) {
-				Vector2 s = FiraF10.MeasureString(Languages.Current?["version"].GetValue(Variables) ?? "undefined");
+				Vector2 s = Fonts["Fira10"].FONT.MeasureString(Languages.Current?["version"].GetValue(Variables) ?? "undefined");
 				VersionDraw.Reset(
 					s: Languages.Current?["version"].GetValue(Variables),
 					p: new Vector2(WIDTH - s.X, HEIGHT - s.Y)
@@ -160,11 +175,22 @@ namespace ITW {
 				VersionDraw.Show( );
 			}
 
+			if( this.DebugDraw.Text != Variables.Debugged( ) ) {
+				DebugDraw.Reset(Variables.Debugged( ));
+				DebugDraw.Show( );
+			}
+
 			Main.Update(inputs);
 
 			base.Update(gameTime);
 
 			inputs.Update( );
+		}
+
+		public void RefreshLanguage() {
+			if( Variables?["LANG"] != $"{Languages.Current.ID}" && Variables?["LANG"] != null ) {
+				Languages.ChangeCurrentLang(int.Parse(Variables["LANG"]));
+			}
 		}
 
 		/// <summary>
@@ -177,7 +203,8 @@ namespace ITW {
 			// TODO: Add your drawing code here
 			spriteBatch.Begin( );
 			Main.Draw(spriteBatch);
-			VersionDraw.Draw(spriteBatch, FiraF10);
+			VersionDraw.Draw(spriteBatch, Fonts["Fira10"].FONT);
+			DebugDraw.Draw(spriteBatch, Fonts["Fira10"].FONT);
 			spriteBatch.End( );
 
 			base.Draw(gameTime);
