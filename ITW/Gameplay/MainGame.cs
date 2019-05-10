@@ -89,7 +89,7 @@ namespace ITW.Gameplay {
 					int z = 0;
 					foreach( StringDrawn s in languagesDrawn ) {
 						if( input.MouseRectangle.Intersects(s.Border ?? new Rectangle(0, 0, 0, 0)) ) {
-							Game.Vars["LANG"] = $"{z}";
+							Game.Vars["LANG"] = $"{languagesIDs[z]}";
 							Game.Vars["langChoose"] = "false";
 							Game.Vars.ToggleDebug("langChoose");
 							Game.RefreshLanguage( );
