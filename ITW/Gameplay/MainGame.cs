@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using ITW.Exts;
+using System;
 
 namespace ITW.Gameplay {
 	/// <summary>
@@ -31,10 +32,15 @@ namespace ITW.Gameplay {
 			Game.Vars.ToggleDebug("DrawState");
 
 
-			ChangeLanguage( );
+			ChangeLanguage(() => { new Debug("",$"Language chosen to {Game.Language["full", 0].VALUE}", Debug.Importance.IMPORTANT_INFO); });
 		}
 
-		public void ChangeLanguage() {
+		/// <summary>
+		/// Change language ending action
+		/// </summary>
+		private Action CL_Action;
+
+		public void ChangeLanguage(Action after) {
 			if( Game.Vars["langChoose"] != "true" ) {
 				Game.Vars.ToggleDebug("LANG");
 				Game.Vars.ToggleDebug("langChoose");
@@ -66,6 +72,7 @@ namespace ITW.Gameplay {
 				}
 				foreach( StringDrawn s in languagesDrawn )
 					s.Show( );
+				CL_Action = after;
 			}
 		}
 
@@ -84,6 +91,7 @@ namespace ITW.Gameplay {
 					Game.Vars["langChoose"] = "false";
 					Game.Vars.ToggleDebug("langChoose");
 					Game.RefreshLanguage( );
+					CL_Action?.Invoke( );
 				}
 				if( mr.Button == MouseButton.LEFT ) {
 					int z = 0;
@@ -93,6 +101,7 @@ namespace ITW.Gameplay {
 							Game.Vars["langChoose"] = "false";
 							Game.Vars.ToggleDebug("langChoose");
 							Game.RefreshLanguage( );
+							CL_Action?.Invoke( );
 						}
 						z++;
 					}

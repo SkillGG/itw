@@ -70,6 +70,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Debug.cs" />
+    <Compile Include="Exts\AnimatedSprite.cs" />
     <Compile Include="Exts\Math\Math.cs" />
     <Compile Include="Exts\StringRectangle.cs" />
     <Compile Include="Gameplay\FontHandler.cs" />

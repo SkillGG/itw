@@ -36,6 +36,8 @@ namespace ITW {
 		public bool FULLSCREEN { get => this.fullScreen; private set { this.fullScreen = value; } }
 		public bool BORDERLESS { get => this.borderLess; private set { this.borderLess = value; } }
 
+		public Color BACKGROUND { get; set; }
+
 		public void ChangeGameResolution(int? w, int? h, bool? FS, bool? BL) {
 			string pl = "Multris#ChangeGameResolution";
 			new Debug(pl, "Changing Resolution with: {w:" + w + ",h:" + h + ",FS:" + FS + ",BL:" + BL + "}", Debug.Importance.IMPORTANT_INFO);
@@ -69,6 +71,7 @@ namespace ITW {
 			this.graphics.PreferredBackBufferHeight = HEIGHT;
 			this.graphics.IsFullScreen = FULLSCREEN;
 			Window.IsBorderless = BORDERLESS;
+			BACKGROUND = Color.White;
 			Window.Position = new Point(( GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - WIDTH ) / 2, 0);
 
 			// Set FPS
@@ -198,7 +201,7 @@ namespace ITW {
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime) {
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+			GraphicsDevice.Clear(BACKGROUND);
 
 			// TODO: Add your drawing code here
 			spriteBatch.Begin( );

@@ -16,6 +16,12 @@ namespace ITW.Gameplay {
 		public struct LangOpt {
 
 			/// <summary>
+			/// Returns representation of this LangOpt as string formatted: <code>name:value</code>
+			/// </summary>
+			/// <returns></returns>
+			public override string ToString() => $@"{NAME}:""{VALUE}""";
+
+			/// <summary>
 			/// Name(ID) of the option. Cannot be changed after initialization.
 			/// </summary>
 			public string NAME { get; private set; }
