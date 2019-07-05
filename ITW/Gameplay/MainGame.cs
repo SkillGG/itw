@@ -22,7 +22,8 @@ namespace ITW.Gameplay {
 
 		public void Start() {
 			// Setting up important values
-			Game.Vars["LANG"] = $"{Game.Language.ID}";
+			if(!Game.Vars.IsVar("LANG"))
+				Game.Vars["LANG"] = $"{Game.Language.ID}";
 			Game.Vars["langChoose"] = "false";
 			Game.Vars["UpdateState"] = null;
 			Game.Vars["DrawState"] = null;
@@ -30,7 +31,6 @@ namespace ITW.Gameplay {
 			// Setting up debuging
 			Game.Vars.ToggleDebug("UpdateState");
 			Game.Vars.ToggleDebug("DrawState");
-
 
 			ChangeLanguage(() => { new Debug("",$"Language chosen to {Game.Language["full", 0].VALUE}", Debug.Importance.IMPORTANT_INFO); });
 		}

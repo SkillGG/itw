@@ -395,9 +395,11 @@ namespace ITW.Gameplay {
 		/// </summary>
 		/// <param name="l"></param>
 		private void AddLanguage(Language l) {
-			if( All.Find(e => e.ID == l.ID) == null )
+			if( All.Find(e => e.ID == l.ID) == null ) {
 				All.Add(l);
-			else
+				if( CurrentLang == -1 )
+					ChangeCurrentLang(l.ID);
+			} else
 				new Debug("LanguageHandler#AddLanguage", $"Language with ID:{l.ID} has already been added! {All.Find(e => e.ID == l.ID).NAME}", Debug.Importance.ERROR);
 		}
 

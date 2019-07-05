@@ -5,16 +5,16 @@ namespace ITW.Gameplay {
 	public class FontHandler {
 
 		public class Font {
-
 			public string NAME { get; private set; }
 			public SpriteFont FONT { get; private set; }
-
 			public Font(SpriteFont sf, string name) {
 				NAME = name;
 				if( sf != null )
 					FONT = sf;
 			}
-
+			~Font(){
+				FONT = null;
+			}
 		}
 
 		List<FontHandler.Font> fonts;
@@ -34,6 +34,11 @@ namespace ITW.Gameplay {
 				if( !fonts.Exists(e => e.NAME == s) )
 					AddNew(new Font(value.FONT, s));
 			}
+		}
+
+		public void Unload(){
+			this.fonts.Clear( );
+			this.fonts = null;
 		}
 
 	}

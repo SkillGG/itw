@@ -101,15 +101,20 @@ namespace ITW.Gameplay {
 		}
 
 		public void LoadFromFile(string str) {
-			// TODO: Parse Config String
+			// TODO: Parse error handling!
 			/*
-				"<ident>":"<value>";
+				[@]"<ident>":"<value>";
+				/\
+			"debug" this change
 			*/
-			string varMatch = @"(?<e1>""|'|`)(?<ident>(?:.(?!\k<e1>))*.)\k<e1>:(?<e2>""|'|`)(?<value>(?:.(?!\k<e2>))*.)\k<e2>;";
+			string varMatch = @"(?<dbg>[@])?(?<e1>""|'|`)(?<ident>(?:.(?!\k<e1>))*.)\k<e1>:(?<e2>""|'|`)(?<value>(?:.(?!\k<e2>))*.)\k<e2>;";
 			MatchCollection matches = Regex.Matches(str, varMatch);
 			foreach( Match m in matches ) {
+				string dbg = m.Groups["dbg"].Value ?? "-";
 				string ident = m.Groups["ident"].Value ?? "$";
 				string value = m.Groups["value"].Value ?? "undefined";
+				if( dbg == "@" )
+					new Debug($"LoadFromFile({str})", $@"Trying to change ""{ident}"" value(""{this[ident]??"null"}"") to ""{value}""", Debug.Importance.IMPORTANT_INFO);
 				if( ident == "$" || string.IsNullOrWhiteSpace(str) ) {
 					new Debug("GameVars#LoadFromFile(string)", $@"Variable identificator is illegal! {m.Groups["ident"]}", Debug.Importance.ERROR);
 					return;

@@ -104,11 +104,14 @@
     <Content Include="Langs\EN.lang">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="ITW_TemporaryKey.pfx" />
-    <Content Include="Config\Startup.cfg">
+    <Content Include="Config\Game.cfg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Version.cfg">
+    <Content Include="Config\hajimemashite.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="ITW_TemporaryKey.pfx" />
+    <Content Include="Config\Startup.cfg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Langs\PL.lang">

@@ -37,6 +37,8 @@ namespace ITW {
 		public bool BORDERLESS { get => this.borderLess; private set { this.borderLess = value; } }
 
 		public Color BACKGROUND { get; set; }
+		
+		private bool FirstUpdate { get; set; }
 
 		public void ChangeGameResolution(int? w, int? h, bool? FS, bool? BL) {
 			string pl = "Multris#ChangeGameResolution";
@@ -71,27 +73,30 @@ namespace ITW {
 			this.graphics.PreferredBackBufferHeight = HEIGHT;
 			this.graphics.IsFullScreen = FULLSCREEN;
 			Window.IsBorderless = BORDERLESS;
-			BACKGROUND = Color.White;
-			Window.Position = new Point(( GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - WIDTH ) / 2, 0);
+			BACKGROUND = Color.Black;
+			// screen center
+			Window.Position = new Point(( GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - WIDTH ) / 2, 0); 
 
 			// Set FPS
 			this.IsFixedTimeStep = true;
 			this.graphics.SynchronizeWithVerticalRetrace = true;
 			this.TargetElapsedTime = new System.TimeSpan(0, 0, 0, 0, 33); // ~30.3FPS
 
+			// setup flags
 			FirstUpdate = false;
 
+			// setup fonts
 			Fonts = new FontHandler( );
 
+			// setup language related stuff
 			Languages = new LanguageHandler( );
 			Variables = new GameVars( );
 
-			// Init all basic variables
+			// Init all basic variables and load configs
 			Variables.LoadFromFile(ReadFile.Read("./Config/Startup.cfg"));
-			Variables.LoadFromFile(ReadFile.Read("./Version.cfg"));
-			if( !string.IsNullOrWhiteSpace(Variables["Player.cfg"]) ) {
-				Variables.LoadFromFile(ReadFile.Read(Variables["Player.cfg"]));
-			}
+			Variables.LoadFromFile(ReadFile.Read("./Config/Game.cfg"));
+
+			// Create MainGame instance
 			this.Main = new MainGame(new VariablesHandler(this));
 		}
 
@@ -103,7 +108,8 @@ namespace ITW {
 		/// </summary>
 		protected override void Initialize() {
 			// TODO: Add your initialization logic here
-
+			
+			// start gathering inputs
 			inputs = new InputStates( );
 
 			base.Initialize( );
@@ -119,16 +125,23 @@ namespace ITW {
 
 			// TODO: use this.Content to load your game content here
 
+			// Load fonts
 			Fonts["Fira24"] = new FontHandler.Font(Content.Load<SpriteFont>("fonts/Fira24"), null);
 			Fonts["Fira20"] = new FontHandler.Font(Content.Load<SpriteFont>("fonts/Fira20"), null);
 			Fonts["Fira10"] = new FontHandler.Font(Content.Load<SpriteFont>("fonts/Fira10"), null);
 
-			// Load EN language
+			// Load languages
 			Languages.AddFromString(ReadFile.Read("./Langs/EN.lang"));
 			Languages.AddFromString(ReadFile.Read("./Langs/PL.lang"));
 
-			Vector2 s = Fonts["Fira10"].FONT.MeasureString(Languages.Current?["version"].GetValue(Variables) ?? "undefined");
+			// Player's config
+			if( !string.IsNullOrWhiteSpace(Variables["Player.cfg"]) ) {
+				Variables.LoadFromFile(ReadFile.Read(Variables["Player.cfg"]));
+			}
+			RefreshLanguage( );
 
+			// debug text
+			Vector2 s = Fonts["Fira10"].FONT.MeasureString(Languages.Current?["version"].GetValue(Variables) ?? "undefined");
 			VersionDraw = new StringDrawn(
 				s: Languages.Current?["version"].GetValue(Variables),
 				p: new Vector2(WIDTH - s.X, HEIGHT - s.Y),
@@ -141,6 +154,8 @@ namespace ITW {
 				c: Color.Orange
 			);
 			DebugDraw.Show( );
+			// debug text
+
 		}
 
 		/// <summary>
@@ -149,9 +164,8 @@ namespace ITW {
 		/// </summary>
 		protected override void UnloadContent() {
 			// TODO: Unload any non ContentManager content here
+			Fonts.Unload( );
 		}
-
-		private bool FirstUpdate { get; set; }
 
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
@@ -162,12 +176,12 @@ namespace ITW {
 			if( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState( ).IsKeyDown(Keys.Escape) )
 				Exit( );
 
-			// TODO: Add your update logic here
-
 			if( !FirstUpdate ) {
 				Main.Start( );
 				FirstUpdate = true;
 			}
+
+			// debug text
 
 			if( this.VersionDraw.Text != ( Languages.Current?["version"].GetValue(Variables) ?? "undefined" ) ) {
 				Vector2 s = Fonts["Fira10"].FONT.MeasureString(Languages.Current?["version"].GetValue(Variables) ?? "undefined");
@@ -183,6 +197,8 @@ namespace ITW {
 				DebugDraw.Show( );
 			}
 
+			// debug text
+
 			Main.Update(inputs);
 
 			base.Update(gameTime);
@@ -190,6 +206,9 @@ namespace ITW {
 			inputs.Update( );
 		}
 
+		/// <summary>
+		/// Refreshes language in whole game
+		/// </summary>
 		public void RefreshLanguage() {
 			if( Variables?["LANG"] != $"{Languages.Current.ID}" && Variables?["LANG"] != null ) {
 				Languages.ChangeCurrentLang(int.Parse(Variables["LANG"]));
@@ -206,8 +225,12 @@ namespace ITW {
 			// TODO: Add your drawing code here
 			spriteBatch.Begin( );
 			Main.Draw(spriteBatch);
+
+			// draw debug text
 			VersionDraw.Draw(spriteBatch, Fonts["Fira10"].FONT);
 			DebugDraw.Draw(spriteBatch, Fonts["Fira10"].FONT);
+			//draw debug text
+
 			spriteBatch.End( );
 
 			base.Draw(gameTime);
