@@ -37,7 +37,7 @@ namespace ITW {
 		public bool BORDERLESS { get => this.borderLess; private set { this.borderLess = value; } }
 
 		public Color BACKGROUND { get; set; }
-		
+
 		private bool FirstUpdate { get; set; }
 
 		public void ChangeGameResolution(int? w, int? h, bool? FS, bool? BL) {
@@ -75,7 +75,7 @@ namespace ITW {
 			Window.IsBorderless = BORDERLESS;
 			BACKGROUND = Color.Black;
 			// screen center
-			Window.Position = new Point(( GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - WIDTH ) / 2, 0); 
+			Window.Position = new Point(( GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - WIDTH ) / 2, 0);
 
 			// Set FPS
 			this.IsFixedTimeStep = true;
@@ -92,7 +92,6 @@ namespace ITW {
 			Languages = new LanguageHandler( );
 			Variables = new GameVars( );
 
-			// Init all basic variables and load configs
 			Variables.LoadFromFile(ReadFile.Read("./Config/Startup.cfg"));
 			Variables.LoadFromFile(ReadFile.Read("./Config/Game.cfg"));
 
@@ -108,7 +107,7 @@ namespace ITW {
 		/// </summary>
 		protected override void Initialize() {
 			// TODO: Add your initialization logic here
-			
+
 			// start gathering inputs
 			inputs = new InputStates( );
 
@@ -133,6 +132,8 @@ namespace ITW {
 			// Load languages
 			Languages.AddFromString(ReadFile.Read("./Langs/EN.lang"));
 			Languages.AddFromString(ReadFile.Read("./Langs/PL.lang"));
+
+			new Debug("", Languages.Current["cl_title"].GetValue(Variables), Debug.Importance.IMPORTANT_INFO);
 
 			// Player's config
 			if( !string.IsNullOrWhiteSpace(Variables["Player.cfg"]) ) {

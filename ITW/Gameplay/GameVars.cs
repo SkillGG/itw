@@ -100,14 +100,18 @@ namespace ITW.Gameplay {
 			debugged = new List<string> { };
 		}
 
-		public void LoadFromFile(string str) {
+		public void LoadFromFile(string input) {
 			// TODO: Parse error handling!
 			/*
 				[@]"<ident>":"<value>";
 				/\
 			"debug" this change
 			*/
-			string varMatch = @"(?<dbg>[@])?(?<e1>""|'|`)(?<ident>(?:.(?!\k<e1>))*.)\k<e1>:(?<e2>""|'|`)(?<value>(?:.(?!\k<e2>))*.)\k<e2>;";
+
+			/** Delete comments */
+			string str = input;
+			string varMatch = 
+			@"(?<dbg>[@])?(?<e1>""|'|`)(?<ident>(?:.(?!\k<e1>))*.)\k<e1>:(?<e2>""|'|`)(?<value>(?:.(?!\k<e2>))*.)\k<e2>;";
 			MatchCollection matches = Regex.Matches(str, varMatch);
 			foreach( Match m in matches ) {
 				string dbg = m.Groups["dbg"].Value ?? "-";

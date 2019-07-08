@@ -191,7 +191,7 @@ namespace ITW.Gameplay {
 		private readonly string value;
 
 		/// <summary>
-		/// Returns value as a String without 
+		/// Returns value as a String without escaping any vaiables/characters
 		/// </summary>
 		/// <returns></returns>
 		public string Plain() => value;
@@ -409,12 +409,11 @@ namespace ITW.Gameplay {
 		/// <param name="s">string to parse</param>
 		/// <param name="errorHandler">Action taking error message as a parameter</param>
 		/// <returns></returns>
-		public int AddFromString(string s, Action<string> errorHandler) {
+		public int AddFromString(string input, Action<string> errorHandler) {
 			// Delete every not needed \n\r\t
-			s = Regex.Replace(
-					Regex.Replace(s, @"[\n\r]", ""),                            // Delete each \n\r
+			string s = Regex.Replace(
+					Regex.Replace(input, @"[\n\r]", ""),                            // Delete each \n\r
 				@"((?<e1>""|'|`)(?:\$\k<e1>|(?!\k<e1>).)*\k<e1>)|[\t ]+", "$1");    // Delete each \t outside of quotes
-
 			/*
 			**
 			<langIdent><options><<langID>>=[(<ident><options>=<value>;)*];

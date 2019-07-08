@@ -11,6 +11,8 @@ namespace ITW.Gameplay {
 	/// </summary>
 	public class MainGame {
 
+		const string CL_Font = "Fira20";
+
 		public VariablesHandler Game { get; private set; }
 
 		private List<StringDrawn> languagesDrawn = new List<StringDrawn>( );
@@ -21,18 +23,21 @@ namespace ITW.Gameplay {
 		}
 
 		public void Start() {
+
 			// Setting up important values
-			if(!Game.Vars.IsVar("LANG"))
+			if( !Game.Vars.IsVar("LANG") )
 				Game.Vars["LANG"] = $"{Game.Language.ID}";
-			Game.Vars["langChoose"] = "false";
-			Game.Vars["UpdateState"] = null;
-			Game.Vars["DrawState"] = null;
+			else if( !Game.Vars.IsVar("cl_skip") || Game.Vars?["cl_skip"] == "0" ) {
+				Game.Vars["langChoose"] = "false";
+				Game.Vars["UpdateState"] = null;
+				Game.Vars["DrawState"] = null;
+			}
 
 			// Setting up debuging
 			Game.Vars.ToggleDebug("UpdateState");
 			Game.Vars.ToggleDebug("DrawState");
 
-			ChangeLanguage(() => { new Debug("",$"Language chosen to {Game.Language["full", 0].VALUE}", Debug.Importance.IMPORTANT_INFO); });
+			ChangeLanguage(() => { new Debug("", $"Language chosen to {Game.Language["full", 0].VALUE}", Debug.Importance.IMPORTANT_INFO); });
 		}
 
 		/// <summary>
@@ -40,10 +45,26 @@ namespace ITW.Gameplay {
 		/// </summary>
 		private Action CL_Action;
 
+		/// <summary>
+		/// "Choose language" title
+		/// </summary>
+		private StringDrawn cl_title;
+
 		public void ChangeLanguage(Action after) {
+			// If not changing aready
 			if( Game.Vars["langChoose"] != "true" ) {
+				// Debug variables
 				Game.Vars.ToggleDebug("LANG");
 				Game.Vars.ToggleDebug("langChoose");
+
+				// Choose Language title
+				cl_title = new StringDrawn(
+					s: Game.Langs.Current["cl_title"].GetValue(Game.Vars),   // Choose language in given language
+					dt: new StringDrawn.DrawType( ),
+					p: new Vector2(0, 0), c: Color.White                 // Color and position
+				);
+
+				// Set flag
 				Game.Vars["langChoose"] = "true";
 
 				// init languages
@@ -51,7 +72,8 @@ namespace ITW.Gameplay {
 				languagesIDs = new List<int>( );
 
 				int x = 50; // Horizontal position
-				int y = 50;  // Vertical position
+				int y = 75;  // Vertical position
+				int space = 25; // vertica space
 
 				foreach( Language l in Game.Langs.All ) {
 					string rep = "";    // representation as string
@@ -65,13 +87,21 @@ namespace ITW.Gameplay {
 						// Get from defualt language value <langIdent>.lang or use just <langIdent>
 						rep = Game.Language[l.NAME + ".lang"].GetValue(null) ?? l.NAME;
 					}
-					//new Debug("", $"New Lang to draw: {rep}", Debug.Importance.ERROR);
-					languagesDrawn.Add(new StringDrawn(rep, p: new Vector2(x, y), c: Color.White));
+
+					// Add language
+					languagesDrawn.Add(new StringDrawn(rep, p: new Vector2(x, y), c: Game.Langs.Current.ID == l.ID ? Color.Gray : Color.White));
 					languagesIDs.Add(l.ID);
-					y += (int) Game.Fonts["Fira10"].FONT.MeasureString(rep).Y + 50;
+
+					// move to next
+					y += (int) Game.Fonts[CL_Font].FONT.MeasureString(rep).Y + space;
 				}
+
+				// Show each string
 				foreach( StringDrawn s in languagesDrawn )
 					s.Show( );
+				cl_title.Show( );
+
+				// set ending action
 				CL_Action = after;
 			}
 		}
@@ -115,8 +145,9 @@ namespace ITW.Gameplay {
 
 		public void Draw(SpriteBatch sb) {
 			if( Game.Vars["langChoose"] == "true" ) {
+				cl_title.Draw(sb, Game.Fonts[CL_Font].FONT);
 				foreach( StringDrawn s in languagesDrawn )
-					s.Draw(sb, Game.Fonts["Fira10"].FONT);
+					s.Draw(sb, Game.Fonts[CL_Font].FONT);
 			} else {
 				// Check Game.Vars["DrawState"] to check what to draw
 			}

@@ -153,7 +153,7 @@ namespace ITW.Exts {
 			/// <para><see cref="Stint"/>: <see cref="Stint.String"/> = what should be vivisble at this step, <see cref="Stint.Int"/> = delay to next step</para>
 			/// </summary>
 			/// <param name="s">Full <see cref="string"/></param>
-			/// <returns><see cref="Stint"/>: <see cref="Stint.String"/> = what should be vivisble at this step, <see cref="Stint.Int"/> = delay to next step</returns>
+			/// <returns><see cref="Stint"/>: <see cref="Stint.String"/> = what should be visble at this step, <see cref="Stint.Int"/> = delay to next step</returns>
 			public Stint GetNextStep(string s) {
 				if( type == 2 ) {
 					if( steps.Length <= 0 )     // no steps found!
@@ -211,7 +211,7 @@ namespace ITW.Exts {
 		public SpriteFont lastFont;
 
 		/// <summary>
-		/// Border of entire string as it HAS BEEN drawn previously
+		/// Border of entire string as it HAS BEEN drawn previously/will be drawn now
 		/// </summary>
 		public Rectangle? Border => lastFont == null ? null :
 		new Rectangle?(new Rectangle(
@@ -273,6 +273,18 @@ namespace ITW.Exts {
 		/// How much time to wait before invoking <see cref="endFunc"/> after drawing changed
 		/// </summary>
 		private int afterWait;
+
+		/// <summary>
+		/// <see cref="Show(int, int)"/> returning <code>this</code> to chain with <see cref="Draw(SpriteBatch, SpriteFont)"/>
+		/// </summary>
+		/// <param name="rt">complementary param to work distinguish from <see cref="Show(int, int)"/></param>
+		/// <param name="bef"><see cref="Show(int, int)"/>:bef</param>
+		/// <param name="aft"><see cref="Show(int, int)"/>:aft</param>
+		/// <returns>this</returns>
+		public StringDrawn Show(bool rt, int bef = 0, int aft = 0){
+			Show(bef, aft);
+			return this;
+		}
 
 		/// <summary>
 		/// Shows to screen string in its starting position which is either empty or full<para></para>

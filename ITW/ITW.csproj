@@ -77,7 +77,6 @@
     <Compile Include="Gameplay\GameVars.cs" />
     <Compile Include="Gameplay\Language.cs" />
     <Compile Include="Gameplay\MainGame.cs" />
-    <Compile Include="Gameplay\SaveState.cs" />
     <Compile Include="ITW.cs" />
     <Compile Include="Exts\InputStates.cs" />
     <Compile Include="Exts\Lines.cs" />
@@ -106,9 +105,6 @@
     </Content>
     <Content Include="Config\Game.cfg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\hajimemashite.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="ITW_TemporaryKey.pfx" />
     <Content Include="Config\Startup.cfg">
